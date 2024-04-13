@@ -2,6 +2,7 @@
 /dist
 /node_modules
 /build
+pgdata
 
 # Logs
 logs
@@ -37,6 +38,8 @@ lerna-debug.log*
 
 # dotenv environment variable files
 .env
+.development.env
+.production.env
 .env.development.local
 .env.test.local
 .env.production.local
