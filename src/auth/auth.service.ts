@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from '@src/users/inputs/create-user.input';
+import { CreateUserDto } from '@src/users/dto/CreateUserDto';
 import { UserEntity } from '@src/users/entities/user.entity';
 import { UsersService } from '@src/users/users.service';
-import { LoginResponseDto } from './inputs/login-response.input';
+
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -23,17 +23,20 @@ export class AuthService {
 
       if (passwordsAreEqual) {
         return user;
+      } else {
+        throw new HttpException(
+          'Invalid email or password',
+          HttpStatus.BAD_REQUEST,
+        );
       }
     }
 
-    throw new HttpException(
-      'Invalid email or password',
-      HttpStatus.BAD_REQUEST,
-    );
+    return user;
   }
 
   async signup(dto: CreateUserDto): Promise<UserEntity> {
     const existingUser = await this.validateUser(dto.email, dto.password);
+
     if (existingUser) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
@@ -43,17 +46,17 @@ export class AuthService {
       +this.configService.get('SALT'),
     );
 
-    const user = await this.usersService.create({ ...dto, password });
+    const user = await this.usersService.createUser({ ...dto, password });
     return user;
   }
 
-  async login({ email, password }: CreateUserDto): Promise<LoginResponseDto> {
-    const user = await this.validateUser(email, password);
+  // async login({ email, password }: CreateUserDto): Promise<LoginResponseDto> {
+  //   const user = await this.validateUser(email, password);
 
-    const payload = { email: user.email, sub: user.id };
-    return {
-      accessToken: this.jwtService.sign(payload),
-      user,
-    };
-  }
+  //   const payload = { email: user.email, sub: user.id };
+  //   return {
+  //     accessToken: this.jwtService.sign(payload),
+  //     user,
+  //   };
+  // }
 }

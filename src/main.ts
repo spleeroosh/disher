@@ -6,6 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
   const port = config.get<number>('API_PORT') || 3002;
+  app.setGlobalPrefix('api');
 
   await app.listen(port, () => console.log(`App is started on port ${port}`));
 }
