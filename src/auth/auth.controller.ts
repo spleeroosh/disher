@@ -9,17 +9,19 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto } from '@src/users/dto/CreateUserDto';
+import { SigninUserDto } from '@src/users/dto/SigninUserDto';
+import { SigninResponseDto } from '@src/auth/dto/SigninResponseDto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // @Mutation(() => LoginResponseDto)
-  // async login(
-  //   @Args('createUserDto') createUserDto: CreateUserDto,
-  // ): Promise<LoginResponseDto> {
-  //   return await this.authService.login(createUserDto);
-  // }
+  @Post('sign-in')
+  async signin(
+    @Body() signinUserDto: SigninUserDto,
+  ): Promise<SigninResponseDto> {
+    return await this.authService.signin(signinUserDto);
+  }
 
   @Post('sign-up')
   @UsePipes(new ValidationPipe())

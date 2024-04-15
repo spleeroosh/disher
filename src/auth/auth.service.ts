@@ -1,11 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { SigninUserDto } from '@src/users/dto/SigninUserDto';
 import { CreateUserDto } from '@src/users/dto/CreateUserDto';
 import { UserEntity } from '@src/users/entities/user.entity';
 import { UsersService } from '@src/users/users.service';
 
 import * as bcrypt from 'bcrypt';
+import { SigninResponseDto } from './dto/SigninResponseDto';
 
 @Injectable()
 export class AuthService {
@@ -50,13 +52,22 @@ export class AuthService {
     return user;
   }
 
-  // async login({ email, password }: CreateUserDto): Promise<LoginResponseDto> {
-  //   const user = await this.validateUser(email, password);
+  async signin({ email, password }: SigninUserDto): Promise<SigninResponseDto> {
+    const user = await this.validateUser(email, password);
 
-  //   const payload = { email: user.email, sub: user.id };
-  //   return {
-  //     accessToken: this.jwtService.sign(payload),
-  //     user,
-  //   };
-  // }
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const payload = { email: user.email, sub: user.id };
+
+    return {
+      accessToken: this.jwtService.sign(payload),
+      user: {
+        name: user.name,
+        surname: user.surname,
+        email: user.email,
+      },
+    };
+  }
 }
